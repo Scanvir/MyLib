@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
@@ -183,5 +184,81 @@ namespace MyLib
             ApplicationName = null;
             return;
         }
+        
+        #region Params
+        private SqlCommand CreateCommand(string query, List<SqlParameter> parameters, SqlConnection connection, SqlTransaction transaction, int timeout)
+        {
+            SqlCommand cmd = new SqlCommand(query, connection, transaction);
+            cmd.CommandTimeout = timeout;
+
+            if (parameters != null)
+            {
+                foreach (var parameter in parameters)
+                {
+                    cmd.Parameters.Add(parameter);
+                }
+            }
+
+            return cmd;
+        }
+        public bool ExecuteWithParams(string query, List<SqlParameter> parameters, LogFile log, int timeout = 30, bool inTransaction = true)
+        {
+            try
+            {
+                if (isConnected)
+                {
+                    if (inTransaction)
+                        using (SqlTransaction transaction = connection.BeginTransaction())
+                        {
+                            using (SqlCommand cmd = CreateCommand(query, parameters, connection, transaction, timeout))
+                            {
+                                cmd.ExecuteNonQuery();
+                                transaction.Commit();
+                            }
+                        }
+                    else
+                        using (SqlCommand cmd = CreateCommand(query, parameters, connection, null, timeout))
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                }
+                else
+                {
+                    using (SqlConnection conn = new SqlConnection(ConnectionString + ApplicationName))
+                    {
+                        conn.Open();
+                        if (inTransaction)
+                            using (SqlTransaction transaction = conn.BeginTransaction())
+                            {
+                                using (SqlCommand cmd = CreateCommand(query, parameters, conn, transaction, timeout))
+                                {
+                                    cmd.ExecuteNonQuery();
+                                    transaction.Commit();
+                                }
+                            }
+                        else
+                            using (SqlCommand cmd = CreateCommand(query, parameters, conn, null, timeout))
+                            {
+                                cmd.ExecuteNonQuery();
+                            }
+                    }
+                }
+
+                return true;
+            }
+            catch (SqlException ex)
+            {
+                log.ToLog($"Query:\t{query}");
+                log.ToLog($"Помилка 01 Execute SQL:\t{ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                log.ToLog($"Query:\t{query}");
+                log.ToLog($"Помилка 02 Execute SQL:\t{ex.Message}");
+                return false;
+            }
+        }
+        #endregion
     }
 }
