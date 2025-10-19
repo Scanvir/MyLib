@@ -389,8 +389,7 @@ namespace MyLib
         {
             if (body.Length > 100)
             {
-                File.WriteAllText("c:\\Work\\InternetSaleApteka\\error.txt", body);
-                return $"[Response body is too long. Saved to file]";
+                log.ToLog($"[Response body is too long. Saved to file]");
             }
 
             return body;
