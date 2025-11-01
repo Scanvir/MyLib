@@ -23,7 +23,11 @@ namespace MyLib
             this.ServerPassword = ServerPassword;
         }
 
-
+        public void Send(string subject, string message, string mailFrom, string mailFromName, IEnumerable<string> mailTos, IEnumerable<string> attachments = null)
+        {
+            SendMail(mailFrom, mailFromName, subject, message, new List<string>(mailTos), attachments == null ? null : new List<string>(attachments)).GetAwaiter().GetResult();
+        }
+        [Obsolete("Використовуйте метод Send з параметром IEnumerable<string> mailTos та IEnumerable<string> attachments або null.")]
         public void Send(string subject, string message, string mailFrom, string mailFromName, string mailTo, string attachment = null)
         {
             var mailTos = new List<string> { mailTo };
@@ -32,52 +36,71 @@ namespace MyLib
             SendMail(mailFrom, mailFromName, subject, message, mailTos, attachments).GetAwaiter().GetResult();
         }
 
-        [Obsolete("Цей метод застарів. Використовуйте метод Send з параметром List<string> mailTos.")]
+        [Obsolete("Використовуйте метод Send з параметром IEnumerable<string> mailTos та IEnumerable<string> attachments або null.")]
         public void Send(string subject, string message, string mailFrom, string mailFromName, string[] mailTos, string attachment = null)
         {
             var attachments = string.IsNullOrEmpty(attachment) ? null : new List<string> { attachment };
 
             SendMail(mailFrom, mailFromName, subject, message, new List<string>(mailTos), attachments).GetAwaiter().GetResult();
         }
+
+        [Obsolete("Використовуйте метод Send з параметром IEnumerable<string> mailTos та IEnumerable<string> attachments або null.")]
         public void Send(string subject, string message, string mailFrom, string mailFromName, string mailTo, string[] attachments)
         {
             var mailTos = new List<string> { mailTo };
 
             SendMail(mailFrom, mailFromName, subject, message, mailTos, new List<string>(attachments)).GetAwaiter().GetResult();
         }
+
+        [Obsolete("Використовуйте метод Send з параметром IEnumerable<string> mailTos та IEnumerable<string> attachments або null.")]
         public void Send(string subject, string message, string mailFrom, string mailFromName, string[] mailTos, string[] attachments)
         {
             SendMail(mailFrom, mailFromName, subject, message, new List<string>(mailTos), new List<string>(attachments)).GetAwaiter().GetResult();
         }
 
+        [Obsolete("Використовуйте метод Send з параметром IEnumerable<string> mailTos та IEnumerable<string> attachments або null.")]
         public void Send(string subject, string message, string mailFrom, string mailFromName, string mailTo)
         {
             var mailTos = new List<string> { mailTo };
 
             SendMail(mailFrom, mailFromName, subject, message, mailTos, null).GetAwaiter().GetResult();
         }
+
+        [Obsolete("Використовуйте метод Send з параметром IEnumerable<string> mailTos та IEnumerable<string> attachments або null.")]
         public void Send(string subject, string message, string mailFrom, string mailFromName, string[] mailTos)
         {
             SendMail(mailFrom, mailFromName, subject, message, new List<string>(mailTos), null).GetAwaiter().GetResult();
         }
 
+
+        public async Task<bool> AsyncSend(string subject, string message, string mailFrom, string mailFromName, IEnumerable<string> mailTos, IEnumerable<string> attachments = null)
+        {
+            return await SendMail(mailFrom, mailFromName, subject, message, new List<string>(mailTos), attachments == null ? null : new List<string>(attachments));
+        }
+
+        [Obsolete("Використовуйте метод AsyncSend з параметром IEnumerable<string> mailTos та IEnumerable<string> attachments або null.")]
         public async Task<bool> Send(string subject, string message, string mailFrom, string mailFromName, List<string> mailTos, string attachment = null)
         {
             var attachments = string.IsNullOrEmpty(attachment) ? null : new List<string> { attachment };
 
             return await SendMail(mailFrom, mailFromName, subject, message, new List<string>(mailTos), attachments);
         }
+
+        [Obsolete("Використовуйте метод AsyncSend з параметром IEnumerable<string> mailTos та IEnumerable<string> attachments або null.")]
         public async Task<bool> Send(string subject, string message, string mailFrom, string mailFromName, string mailTo, List<string> attachments)
         {
             var mailTos = new List<string> { mailTo };
 
             return await SendMail(mailFrom, mailFromName, subject, message, mailTos, new List<string>(attachments));
         }
+
+        [Obsolete("Використовуйте метод AsyncSend з параметром IEnumerable<string> mailTos та IEnumerable<string> attachments або null.")]
         public async Task<bool> Send(string subject, string message, string mailFrom, string mailFromName, List<string> mailTos, List<string> attachments)
         {
             return await SendMail(mailFrom, mailFromName, subject, message, new List<string>(mailTos), new List<string>(attachments));
-        }
-        
+        }        
+
+
         private async Task<bool> SendMail(string mailFrom, string mailFromName, string subject, string message, List<string> mailTos, List<string> attachments)
         {
             MailMessage mailMessage = null;
