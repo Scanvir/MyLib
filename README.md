@@ -63,7 +63,7 @@
 
 ```csharp
 var mail = new Mail("smtp.example.com", "user@example.com", "password123");
-await mail.Send(
+await mail.AsyncSend(
     "Тема листа",
     "Текст повідомлення",
     "user@example.com", // відправник
